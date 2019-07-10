@@ -9,7 +9,7 @@ class ProductAdmin extends AbstractAdmin
     protected function configureListFields(ListMapper $list)
     {
         $list->addIdentifier('name')
-//            ->add('categories')
+            ->add('categories')
             ->addIdentifier('description')
             ->add('price')
             ->add('count')
@@ -18,7 +18,7 @@ class ProductAdmin extends AbstractAdmin
     protected function configureDatagridFilters(DatagridMapper $filter)
     {
         $filter->add('name')
-//            ->add('categories')
+            ->add('categories')
             ->add('description')
             ->add('price')
             ->add('count')
@@ -27,7 +27,7 @@ class ProductAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $form)
     {
         $form->add('name')
-//            ->add('categories')
+            ->add('categories')
             ->add('description')
             ->add('price')
             ->add('count')

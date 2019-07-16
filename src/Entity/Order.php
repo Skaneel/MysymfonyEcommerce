@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use App\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use function Symfony\Component\Debug\Tests\testHeader;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\OrderRepository")
+ * @ORM\Table(name="`order`")
  */
 class Order
 {
@@ -47,12 +51,19 @@ class Order
      */
     private $amount;
 
+    /**
+     * @var OrderItem[]
+     * @ORM\OneToMany(targetEntity="App\Entity\OrderItem", mappedBy="order", cascade={"persist"})
+     */
+    private $orderItems;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->status = self::STATUS_NEW;
         $this->isPaid = false;
         $this->amount = 0;
+        $this->orderItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,5 +130,50 @@ class Order
         $this->user = $user;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|OrderItem[]
+     */
+    public function getOrderItems(): Collection
+    {
+        return $this->orderItems;
+    }
+
+    public function addOrderItem(OrderItem $orderItem): self
+    {
+        if (!$this->orderItems->contains($orderItem)) {
+            $this->orderItems[] = $orderItem;
+            $orderItem->setOrder($this);
+        }
+
+        $this->updateAmount();
+
+        return $this;
+    }
+
+    public function removeOrderItem(OrderItem $orderItem): self
+    {
+        if ($this->orderItems->contains($orderItem)) {
+            $this->orderItems->removeElement($orderItem);
+            // set the owning side to null (unless already changed)
+            if ($orderItem->getOrder() === $this) {
+                $orderItem->setOrder(null);
+            }
+        }
+
+        $this->updateAmount();
+
+        return $this;
+    }
+
+    public function updateAmount(){
+        $amount = 0;
+
+        foreach ($this->getOrderItems() as $item){
+            $amount += $item->getAmount();
+        }
+
+        $this->setAmount($amount);
     }
 }
